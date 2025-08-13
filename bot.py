@@ -8,10 +8,14 @@ from dotenv import load_dotenv
 import os
 import pytz
 
+intents = discord.Intents.default()
+bot = commands.Bot(command_prefix="!", intents=intents)
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 DISCORD_CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-
+LOCAL_TZ = os.getenv("LOCAL_TZ")
+SEND_HOUR = int(os.getenv("SEND_HOUR"))
+SEND_MIN = int(os.getenv("SEND_MIN"))
 
 def get_daily_news():
     # Get current month
@@ -63,13 +67,6 @@ def get_daily_news():
     # print(news_message)
     return news_message
 
-# Replace with your bot token and channel ID
-TOKEN = DISCORD_TOKEN
-CHANNEL_ID = DISCORD_CHANNEL_ID  # Replace with your channel ID
-MESSAGE = get_daily_news()
-
-LOCAL_TZ = "America/Denver"
-
 def convert_to_utc(hour: int, minute: int, local_tz_str: str = LOCAL_TZ) -> tuple:
     local_tz = pytz.timezone(local_tz_str)
     now = datetime.now(local_tz)
@@ -78,22 +75,16 @@ def convert_to_utc(hour: int, minute: int, local_tz_str: str = LOCAL_TZ) -> tupl
     utc_dt = local_dt.astimezone(pytz.utc)
     return utc_dt.hour, utc_dt.minute
 
-utc_hour, utc_minute = convert_to_utc(6, 30, "America/Denver")
+utc_hour, utc_minute = convert_to_utc(SEND_HOUR, SEND_MIN, LOCAL_TZ)
 
 # Set the time you want the message to be sent (24-hour format)
-SEND_TIME = dtime(hour=utc_hour, minute=utc_minute)  # 2:00 PM daily
-# SEND_TIME = dtime(hour=12, minute=41)  # 2:00 PM daily
-print(f"UTC time: {utc_hour}:{utc_minute}")
-
-
-intents = discord.Intents.default()
-bot = commands.Bot(command_prefix="!", intents=intents)
-
+SEND_TIME = dtime(hour=utc_hour, minute=utc_minute)
+# SEND_TIME = dtime(hour=12, minute=41)
+# print(f"UTC time: {utc_hour}:{utc_minute}")
 
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}')
-
     scheduler = AsyncIOScheduler()
     scheduler.add_job(send_daily_message, 'cron', hour=SEND_TIME.hour, minute=SEND_TIME.minute)
     scheduler.start()
@@ -101,15 +92,14 @@ async def on_ready():
 
 
 async def send_daily_message():
-    print("🧠 Generating message...")
+    print("Generating message...")
     message = get_daily_news()
     print("Attempting to send message...")
-    channel = bot.get_channel(CHANNEL_ID)
+    channel = bot.get_channel(DISCORD_CHANNEL_ID)
     if channel:
         await channel.send(message)
         print('Message sent successfully')
     else:
         print("Channel not found!")
 
-
-bot.run(TOKEN)
+bot.run(DISCORD_TOKEN)
