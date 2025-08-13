@@ -18,7 +18,15 @@ def main():
     try:
         from selenium import webdriver
         from selenium.webdriver.common.by import By
-        driver = webdriver.Chrome()
+        from selenium.webdriver.chrome.options import Options
+
+        options = Options()
+        options.add_argument("--headless")  # 👈 Run without GUI
+        options.add_argument("--no-sandbox")  # 👈 Required for container environments
+        options.add_argument("--disable-dev-shm-usage")  # 👈 Prevents memory issues
+
+        driver = webdriver.Chrome(options=options)
+
     except:
         print("AF: No Chrome webdriver installed")
         driver = webdriver.Chrome(ChromeDriverManager().install())
