@@ -1,12 +1,14 @@
 import pandas as pd
 from datetime import datetime
 import discord
+from apscheduler.triggers.cron import CronTrigger
 from discord.ext import commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import time as dtime
 from dotenv import load_dotenv
 import os
 import pytz
+from scraper.scraper import run_scraper
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -88,7 +90,13 @@ print(f"UTC time: {utc_hour}:{utc_minute}")
 async def on_ready():
     print(f'Logged in as {bot.user}')
     scheduler = AsyncIOScheduler()
+
+    # Daily message job
     scheduler.add_job(send_daily_message, 'cron', hour=SEND_TIME.hour, minute=SEND_TIME.minute)
+
+    # Monthly scraper job
+    scheduler.add_job(run_scraper, CronTrigger(day=1, hour=0, minute=0))
+
     scheduler.start()
     print("Scheduler started")
 
