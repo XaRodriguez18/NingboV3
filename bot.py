@@ -85,7 +85,7 @@ CHANNEL_ID = DSCHANNEL_ID  # Replace with your channel ID
 MESSAGE = getDailyNews()
 
 # Set the time you want the message to be sent (24-hour format)
-SEND_TIME = dtime(hour=12, minute=5)  # 2:00 PM daily
+SEND_TIME = dtime(hour=12, minute=13)  # 2:00 PM daily
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -98,9 +98,11 @@ async def on_ready():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(send_daily_message, 'cron', hour=SEND_TIME.hour, minute=SEND_TIME.minute)
     scheduler.start()
+    print("Scheduler started")
 
 
 async def send_daily_message():
+    print("Attempting to send message...")
     channel = bot.get_channel(CHANNEL_ID)
     if channel:
         await channel.send(MESSAGE)
