@@ -38,7 +38,7 @@ def getDailyNews():
 
     # Open corresponding csv file
     fileString = month + '_news.csv'
-    news = pd.read_csv("../forex_factory_calendar_news_scraper-main/news/" + fileString)
+    news = pd.read_csv("forex_factory_calendar_news_scraper-main/news/" + fileString)
     # print(news.head(10))
 
     # Functionality to filter dataframe data
