@@ -7,6 +7,7 @@ from datetime import time as dtime
 import asyncio
 from dotenv import load_dotenv
 import os
+import pytz
 
 load_dotenv()
 
@@ -84,8 +85,20 @@ TOKEN = DSTOKEN
 CHANNEL_ID = DSCHANNEL_ID  # Replace with your channel ID
 MESSAGE = getDailyNews()
 
+def convert_to_utc(hour: int, minute: int, local_tz_str: str = "America/Denver") -> tuple:
+    local_tz = pytz.timezone(local_tz_str)
+    now = datetime.now(local_tz)
+    local_dt = local_tz.localize(datetime(now.year, now.month, now.day, hour, minute))
+
+    utc_dt = local_dt.astimezone(pytz.utc)
+    return utc_dt.hour, utc_dt.minute
+
+utc_hour, utc_minute = convert_to_utc(12, 20, "America/Denver")
+
 # Set the time you want the message to be sent (24-hour format)
-SEND_TIME = dtime(hour=12, minute=13)  # 2:00 PM daily
+SEND_TIME = dtime(hour=utc_hour, minute=utc_minute)  # 2:00 PM daily
+print(f"UTC time: {utc_hour}:{utc_minute}")
+
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
