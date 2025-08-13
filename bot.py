@@ -4,42 +4,28 @@ import discord
 from discord.ext import commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import time as dtime
-import asyncio
 from dotenv import load_dotenv
 import os
 import pytz
 
 load_dotenv()
-
-DSTOKEN = os.getenv("DISCORD_TOKEN")
-DSCHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-SCRAPE_INTERVAL = int(os.getenv("SCRAPE_INTERVAL"))
-NEWS_SOURCE_URL = os.getenv("NEWS_SOURCE_URL")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 
 
-def getDailyNews():
+def get_daily_news():
     # Get current month
     month = datetime.now().month
-    monthDict = {
-        1 : "January",
-        2 : "February",
-        3 : "March",
-        4 : "April",
-        5 : "May",
-        6 : "June",
-        7 : "July",
-        8 : "August",
-        9 : "September",
-        10 : "October",
-        11 : "November",
-        12 : "December"
+    month_dict = {
+        1 : "January", 2 : "February", 3 : "March", 4 : "April", 5 : "May", 6 : "June",
+        7 : "July", 8 : "August", 9 : "September", 10 : "October", 11 : "November", 12 : "December"
     }
-    month = monthDict[month]
+    month = month_dict[month]
     # print(month)
 
     # Open corresponding csv file
-    fileString = month + '_news.csv'
-    news = pd.read_csv("forex_factory_calendar_news_scraper-main/news/" + fileString)
+    file_string = month + '_news.csv'
+    news = pd.read_csv("forex_factory_calendar_news_scraper-main/news/" + file_string)
     # print(news.head(10))
 
     # Functionality to filter dataframe data
@@ -51,39 +37,36 @@ def getDailyNews():
     impact = ['red', 'orange']
     mask = news['impact'].isin(impact)
     news = news[mask]
-
     # print(news)
-
 
     # Get current day
     day = datetime.now().day
     # print(day)
 
     # Get only those rows from the current date
-    currentDay = [month[0:3] + " " + str(day)]
-    # print(currentDay)
-    mask = news['date'].isin(currentDay)
-    currentDayRows = news[mask]
-    print(currentDayRows)
+    current_day = [month[0:3] + " " + str(day)]
+    # print(current_day)
+    mask = news['date'].isin(current_day)
+    current_day_rows = news[mask]
+    # print(current_day_rows)
 
     # Generate news message to be displayed
-    messageList = ['time', 'currency', 'impact', 'event']
-    newsMessage = f"{currentDay[0]} News:\n"
-    if currentDayRows.empty:
-        newsMessage += "No relevant news today"
+    message_list = ['time', 'currency', 'impact', 'event']
+    news_message = f"{current_day[0]} News:\n"
+    if current_day_rows.empty:
+        news_message += "No relevant news today"
     else:
-        for index, row in currentDayRows.iterrows():
-            for name in messageList:
-                newsMessage += str(row[name]) + "\t"
-            newsMessage += "\n"
-
-    print(newsMessage)
-    return newsMessage
+        for index, row in current_day_rows.iterrows():
+            for name in message_list:
+                news_message += str(row[name]) + "\t"
+            news_message += "\n"
+    # print(news_message)
+    return news_message
 
 # Replace with your bot token and channel ID
-TOKEN = DSTOKEN
-CHANNEL_ID = DSCHANNEL_ID  # Replace with your channel ID
-MESSAGE = getDailyNews()
+TOKEN = DISCORD_TOKEN
+CHANNEL_ID = DISCORD_CHANNEL_ID  # Replace with your channel ID
+MESSAGE = get_daily_news()
 
 LOCAL_TZ = "America/Denver"
 
@@ -119,7 +102,7 @@ async def on_ready():
 
 async def send_daily_message():
     print("🧠 Generating message...")
-    message = getDailyNews()
+    message = get_daily_news()
     print("Attempting to send message...")
     channel = bot.get_channel(CHANNEL_ID)
     if channel:
