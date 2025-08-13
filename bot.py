@@ -9,6 +9,7 @@ import os
 import pytz
 
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -25,7 +26,7 @@ def get_daily_news():
         7 : "July", 8 : "August", 9 : "September", 10 : "October", 11 : "November", 12 : "December"
     }
     month = month_dict[month]
-    # print(month)
+    print(f"Current month: {month}")
 
     # Open corresponding csv file
     file_string = month + '_news.csv'
@@ -45,7 +46,7 @@ def get_daily_news():
 
     # Get current day
     day = datetime.now().day
-    # print(day)
+    print(f"Current day: {day}")
 
     # Get only those rows from the current date
     current_day = [month[0:3] + " " + str(day)]
@@ -64,7 +65,7 @@ def get_daily_news():
             for name in message_list:
                 news_message += str(row[name]) + "\t"
             news_message += "\n"
-    # print(news_message)
+    print(f"Current message:\n{news_message}")
     return news_message
 
 def convert_to_utc(hour: int, minute: int, local_tz_str: str = LOCAL_TZ) -> tuple:
@@ -80,7 +81,8 @@ utc_hour, utc_minute = convert_to_utc(SEND_HOUR, SEND_MIN, LOCAL_TZ)
 # Set the time you want the message to be sent (24-hour format)
 SEND_TIME = dtime(hour=utc_hour, minute=utc_minute)
 # SEND_TIME = dtime(hour=12, minute=41)
-# print(f"UTC time: {utc_hour}:{utc_minute}")
+print(f"Local time: {SEND_HOUR}:{SEND_MIN}")
+print(f"UTC time: {utc_hour}:{utc_minute}")
 
 @bot.event
 async def on_ready():
