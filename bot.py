@@ -85,7 +85,7 @@ CHANNEL_ID = DSCHANNEL_ID  # Replace with your channel ID
 MESSAGE = getDailyNews()
 
 # Set the time you want the message to be sent (24-hour format)
-SEND_TIME = dtime(hour=10, minute=30)  # 2:00 PM daily
+SEND_TIME = dtime(hour=12, minute=00)  # 2:00 PM daily
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)

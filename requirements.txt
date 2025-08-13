@@ -3,3 +3,4 @@ apscheduler
 flask
 python-dotenv
 loguru
+pandas
