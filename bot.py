@@ -93,7 +93,7 @@ def convert_to_utc(hour: int, minute: int, local_tz_str: str = "America/Denver")
     utc_dt = local_dt.astimezone(pytz.utc)
     return utc_dt.hour, utc_dt.minute
 
-utc_hour, utc_minute = convert_to_utc(12, 20, "America/Denver")
+utc_hour, utc_minute = convert_to_utc(6, 30, "America/Denver")
 
 # Set the time you want the message to be sent (24-hour format)
 SEND_TIME = dtime(hour=utc_hour, minute=utc_minute)  # 2:00 PM daily
