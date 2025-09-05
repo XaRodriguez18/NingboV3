@@ -15,49 +15,55 @@ def main():
     from utils import reformat_scraped_data
     from webdriver_manager.chrome import ChromeDriverManager
 
+    print("[INFO] Initializing undetected-chromedriver...")
     try:
-        from selenium import webdriver
+        import undetected_chromedriver as uc
         from selenium.webdriver.common.by import By
-        from selenium.webdriver.chrome.options import Options
+        options = uc.ChromeOptions()
+        options.headless = True
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--disable-dev-shm-usage")
+        # Set a realistic user-agent
+        options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
+        driver = uc.Chrome(options=options)
+        print("[INFO] Chrome driver started successfully.")
+    except Exception as e:
+        print(f"[ERROR] Could not start undetected-chromedriver: {e}")
+        return
 
-        options = Options()
-        options.add_argument("--headless")  # 👈 Run without GUI
-        options.add_argument("--no-sandbox")  # 👈 Required for container environments
-        options.add_argument("--disable-dev-shm-usage")  # 👈 Prevents memory issues
-
-        driver = webdriver.Chrome(options=options)
-
-    except:
-        print("AF: No Chrome webdriver installed")
-        driver = webdriver.Chrome(ChromeDriverManager().install())
-
+    print("[INFO] Navigating to Forex Factory calendar page...")
     driver.get("https://www.forexfactory.com/calendar?month=this")
+    print(f"[INFO] Current URL: {driver.current_url}")
 
     month = datetime.now().strftime("%B")
 
-    table = driver.find_element(By.CLASS_NAME, "calendar__table")
+    print("[INFO] Waiting for calendar table to load...")
+    try:
+        table = driver.find_element(By.CLASS_NAME, "calendar__table")
+        print("[INFO] Calendar table found!")
+    except Exception as e:
+        print(f"[ERROR] Could not find calendar table: {e}")
+        print("[DEBUG] Dumping page source snippet:")
+        print(driver.page_source[:2000])
+        driver.quit()
+        return
 
     data = []
     previous_row_count = 0
-    # Scroll down to the end of the page
+    print("[INFO] Scrolling to the end of the page...")
     while True:
-        # Record the current scroll position
         before_scroll = driver.execute_script("return window.pageYOffset;")
-
-        # Scroll down a fixed amount
         driver.execute_script("window.scrollTo(0, window.pageYOffset + 500);")
-
-        # Wait for a short moment to allow content to load
         time.sleep(2)
-
-        # Record the new scroll position
         after_scroll = driver.execute_script("return window.pageYOffset;")
-
-        # If the scroll position hasn't changed, we've reached the end of the page
         if before_scroll == after_scroll:
+            print("[INFO] Reached end of page.")
             break
 
-    # Now that we've scrolled to the end, collect the data
+    print("[INFO] Collecting data from table...")
     for row in table.find_elements(By.TAG_NAME, "tr"):
         row_data = []
         for element in row.find_elements(By.TAG_NAME, "td"):
@@ -74,8 +80,13 @@ def main():
                         row_data.append(color)
                     else:
                         row_data.append("impact")
-
         if len(row_data):
             data.append(row_data)
+    print(f"[INFO] Scraped {len(data)} rows from the calendar table.")
 
+    print("[INFO] Reformatting and saving scraped data...")
     reformat_scraped_data(data, month)
+    print("[INFO] Scraping process completed.")
+    driver.quit()
+
+run_scraper()
