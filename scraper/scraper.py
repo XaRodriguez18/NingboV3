@@ -34,11 +34,11 @@ def main():
         print(f"[ERROR] Could not start undetected-chromedriver: {e}")
         return
 
-    print("[INFO] Navigating to Forex Factory calendar page...")
-    driver.get("https://www.forexfactory.com/calendar?month=this")
+    print("[INFO] Navigating to Forex Factory homepage...")
+    driver.get("https://www.forexfactory.com/")
     print(f"[INFO] Current URL: {driver.current_url}")
 
-    month = datetime.now().strftime("%B")
+    today = datetime.now().strftime("%b %d")  # e.g., 'Sep 10'
 
     print("[INFO] Waiting for calendar table to load...")
     try:
@@ -63,8 +63,17 @@ def main():
             print("[INFO] Reached end of page.")
             break
 
-    print("[INFO] Collecting data from table...")
+    print("[INFO] Collecting today's news from table...")
     for row in table.find_elements(By.TAG_NAME, "tr"):
+        # Check if this row is for today
+        date_cells = row.find_elements(By.CLASS_NAME, "calendar__date")
+        is_today = False
+        for date_cell in date_cells:
+            if today in date_cell.text:
+                is_today = True
+                break
+        if not is_today and date_cells:
+            continue
         row_data = []
         for element in row.find_elements(By.TAG_NAME, "td"):
             class_name = element.get_attribute('class')
@@ -82,10 +91,12 @@ def main():
                         row_data.append("impact")
         if len(row_data):
             data.append(row_data)
-    print(f"[INFO] Scraped {len(data)} rows from the calendar table.")
+    print(f"[INFO] Scraped {len(data)} rows for today from the calendar table.")
 
     print("[INFO] Reformatting and saving scraped data...")
-    reformat_scraped_data(data, month)
+    # Use today's date for the CSV filename
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    reformat_scraped_data(data, today_str)
     print("[INFO] Scraping process completed.")
     driver.quit()
 

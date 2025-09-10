@@ -102,8 +102,8 @@ Sep 7,5:50pm,JPY,yellow,Bank Lending y/y
 Sep 7,5:50pm,JPY,yellow,Current Account
 Sep 7,5:50pm,JPY,yellow,Final GDP Price Index y/y
 Sep 7,5:50pm,JPY,yellow,Final GDP q/q
-Sep 7,Tentative,CNY,yellow,Trade Balance
-Sep 7,Tentative,CNY,yellow,USD-Denominated Trade Balance
+Sep 7,9:01pm,CNY,yellow,Trade Balance
+Sep 7,9:02pm,CNY,yellow,USD-Denominated Trade Balance
 Sep 7,11:00pm,JPY,yellow,Economy Watchers Sentiment
 Sep 8,12:00am,EUR,yellow,German Industrial Production m/m
 Sep 8,12:00am,EUR,yellow,German Trade Balance
@@ -112,13 +112,11 @@ Sep 8,1:00pm,USD,yellow,Consumer Credit m/m
 Sep 8,4:45pm,NZD,yellow,Manufacturing Sales q/q
 Sep 8,5:01pm,GBP,yellow,BRC Retail Sales Monitor y/y
 Sep 8,5:50pm,JPY,yellow,M2 Money Stock y/y
-Sep 8,6:30pm,AUD,yellow,Westpac Consumer Sentiment
+Sep 8,6:18pm,AUD,yellow,Westpac Consumer Sentiment
 Sep 8,7:30pm,AUD,yellow,NAB Business Confidence
-Sep 9,12:00am,JPY,yellow,Prelim Machine Tool Orders y/y
+Sep 8,11:58pm,JPY,yellow,Prelim Machine Tool Orders y/y
 Sep 9,12:45am,EUR,yellow,French Industrial Production m/m
-Sep 9,Tentative,CNY,orange,New Loans
-Sep 9,Tentative,CNY,yellow,M2 Money Supply y/y
-Sep 9,Tentative,EUR,yellow,German 10-y Bond Auction
+Sep 9,3:31am,EUR,yellow,German 10-y Bond Auction
 Sep 9,4:00am,USD,yellow,NFIB Small Business Index
 Sep 9,5:30am,EUR,yellow,German Buba President Nagel Speaks
 Sep 9,5:50am,CHF,orange,SNB Chairman Schlegel Speaks
@@ -134,10 +132,12 @@ Sep 10,8:00am,USD,yellow,Final Wholesale Inventories m/m
 Sep 10,8:30am,USD,yellow,Crude Oil Inventories
 Sep 10,11:01am,USD,yellow,10-y Bond Auction
 Sep 10,5:01pm,GBP,yellow,RICS House Price Balance
-Sep 10,5:15pm,NZD,orange,RBNZ Gov Hawkesby Speaks
+Sep 10,5:15pm,NZD,red,RBNZ Gov Hawkesby Speaks
 Sep 10,5:50pm,JPY,yellow,BSI Manufacturing Index
 Sep 10,5:50pm,JPY,yellow,PPI y/y
 Sep 10,7:00pm,AUD,yellow,MI Inflation Expectations
+Sep 11,Tentative,CNY,orange,New Loans
+Sep 11,Tentative,CNY,yellow,M2 Money Supply y/y
 Sep 11,6:15am,EUR,red,Main Refinancing Rate
 Sep 11,6:15am,EUR,red,Monetary Policy Statement
 Sep 11,6:30am,USD,red,Core CPI m/m
@@ -149,6 +149,7 @@ Sep 11,8:30am,USD,yellow,Natural Gas Storage
 Sep 11,11:01am,USD,yellow,30-y Bond Auction
 Sep 11,12:00pm,USD,yellow,Federal Budget Balance
 Sep 11,4:30pm,NZD,yellow,BusinessNZ Manufacturing Index
+Sep 11,8:00pm,AUD,yellow,RBA Assist Gov Jones Speaks
 Sep 11,10:30pm,JPY,yellow,Revised Industrial Production m/m
 Sep 12,12:00am,EUR,yellow,German Final CPI m/m
 Sep 12,12:00am,GBP,red,GDP m/m
@@ -184,6 +185,7 @@ Sep 15,6:30am,CAD,yellow,Manufacturing Sales m/m
 Sep 15,6:30am,CAD,yellow,Wholesale Sales m/m
 Sep 15,6:30am,USD,orange,Empire State Manufacturing Index
 Sep 15,4:45pm,NZD,yellow,FPI m/m
+Sep 15,5:50pm,AUD,yellow,RBA Assist Gov Hunter Speaks
 Sep 15,10:30pm,JPY,yellow,Tertiary Industry Activity m/m
 Sep 16,12:00am,GBP,orange,Average Earnings Index 3m/y
 Sep 16,12:00am,GBP,orange,Claimant Count Change
@@ -210,12 +212,14 @@ Sep 16,2:30pm,USD,yellow,API Weekly Statistical Bulletin
 Sep 16,4:45pm,NZD,yellow,Current Account
 Sep 16,5:50pm,JPY,yellow,Trade Balance
 Sep 16,6:30pm,AUD,yellow,MI Leading Index m/m
+Sep 16,7:30pm,AUD,yellow,RBA Assist Gov Jones Speaks
 Sep 17,12:00am,GBP,red,CPI y/y
 Sep 17,12:00am,GBP,yellow,Core CPI y/y
 Sep 17,12:00am,GBP,yellow,PPI Input m/m
 Sep 17,12:00am,GBP,yellow,PPI Output m/m
 Sep 17,12:00am,GBP,yellow,RPI y/y
 Sep 17,1:00am,CHF,yellow,SECO Economic Forecasts
+Sep 17,1:30am,EUR,orange,ECB President Lagarde Speaks
 Sep 17,2:30am,GBP,yellow,HPI y/y
 Sep 17,3:00am,EUR,yellow,Final Core CPI y/y
 Sep 17,3:00am,EUR,yellow,Final CPI y/y
@@ -238,6 +242,7 @@ Sep 17,7:30pm,AUD,red,Unemployment Rate
 Sep 17,Tentative,NZD,yellow,RBNZ Statement of Intent
 Sep 18,12:00am,CHF,yellow,Trade Balance
 Sep 18,Tentative,CNY,yellow,Foreign Direct Investment ytd/y
+Sep 18,1:10am,EUR,orange,ECB President Lagarde Speaks
 Sep 18,2:00am,EUR,yellow,Current Account
 Sep 18,Tentative,EUR,yellow,Spanish 10-y Bond Auction
 Sep 18,5:00am,GBP,red,Monetary Policy Summary
@@ -323,7 +328,7 @@ Sep 26,6:30am,USD,yellow,Personal Spending m/m
 Sep 26,8:00am,USD,orange,Revised UoM Consumer Sentiment
 Sep 26,8:00am,USD,yellow,Revised UoM Inflation Expectations
 Sep 26,All Day,AUD,red,Parliamentary Elections
-Sep 27,10:00am,AUD,gray,Daylight Saving Time Shift
+Sep 27,8:00am,NZD,gray,Daylight Saving Time Shift
 Sep 28,Tentative,CAD,yellow,Annual Budget Release
 Sep 29,12:00am,GBP,yellow,Nationwide HPI m/m
 Sep 29,12:30am,CHF,yellow,Retail Sales y/y
