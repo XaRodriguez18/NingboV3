@@ -32,7 +32,7 @@ def get_daily_news():
 
     # Open corresponding csv file
     file_string = month + '_news.csv'
-    news = pd.read_csv("forex_factory_calendar_news_scraper-main/news/" + file_string)
+    news = pd.read_csv("scraper/news/" + file_string)
     # print(news.head(10))
 
     # Functionality to filter dataframe data
