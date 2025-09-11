@@ -24,7 +24,9 @@ def get_daily_news():
     # Get today's date string for the CSV filename
     today_str = datetime.now().strftime("%Y-%m-%d")
     file_string = today_str + '_news.csv'
-    news_path = os.path.join("news", file_string)
+    news_dir = os.path.abspath("news")
+    news_path = os.path.join(news_dir, file_string)
+    print(f"[INFO] Absolute news directory: {news_dir}")
     print(f"[INFO] Loading news from: {news_path}")
     if not os.path.exists(news_path):
         print("[WARN] News file not found for today.")
