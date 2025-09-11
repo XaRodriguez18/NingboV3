@@ -1,5 +1,5 @@
 def run_scraper():
-    print("Running monthly scraper")
+    print("Running Daily scraper")
     try:
         main()
         print("Scraper completed")
@@ -11,8 +11,8 @@ def main():
     import json
     import pandas as pd
     from datetime import datetime
-    from config import ALLOWED_ELEMENT_TYPES, ICON_COLOR_MAP
-    from utils import reformat_scraped_data
+    from scraper.config import ALLOWED_ELEMENT_TYPES, ICON_COLOR_MAP
+    from scraper.utils import reformat_scraped_data
     from webdriver_manager.chrome import ChromeDriverManager
 
     print("[INFO] Initializing undetected-chromedriver...")
@@ -99,5 +99,3 @@ def main():
     reformat_scraped_data(data, today_str)
     print("[INFO] Scraping process completed.")
     driver.quit()
-
-run_scraper()
