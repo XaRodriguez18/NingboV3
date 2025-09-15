@@ -28,6 +28,8 @@ def main():
         options.add_argument("--disable-dev-shm-usage")
         # Set a realistic user-agent
         options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
+        # Set Chrome binary location for Railway or Linux environments
+        options.binary_location = "/usr/bin/google-chrome"
         driver = uc.Chrome(options=options)
         print("[INFO] Chrome driver started successfully.")
     except Exception as e:
