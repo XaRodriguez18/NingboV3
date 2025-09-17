@@ -22,4 +22,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Default command (adjust as needed)
-CMD ["python", "scraper/scraper.py"]
+CMD ["python", "bot.py"]
