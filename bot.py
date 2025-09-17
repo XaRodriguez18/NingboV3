@@ -135,7 +135,13 @@ async def send_daily_message():
                 # Set color to red if any red impact
                 if row['impact'] == 'red':
                     color = 0xFF0000
-                desc += f"`{row['time']}` **{row['currency']}** {row['impact'].capitalize()} {row['event']}\n"
+                elif row['impact'] == 'orange' and color != 0xFF0000:
+                    color = 0xFFA500
+                elif row['impact'] == 'yellow' and color not in (0xFF0000, 0xFFA500):
+                    color = 0xFFFF00
+                else:
+                    color = 0x00FF00  # Green for low impact
+                desc += f"`{row['time']}` **{row['currency']}** {row['impact'].capitalize()} - {row['event']}\n"
         embed = discord.Embed(title=f"{today_display} News", description=desc, color=color)
         embed.set_footer(text="Source: Forex Factory\nhttps://www.forexfactory.com/")
     print(f"[INFO] Attempting to get channel with ID: {DISCORD_CHANNEL_ID}")
