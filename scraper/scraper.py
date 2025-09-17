@@ -92,11 +92,11 @@ def main():
             print(f"[WARN] Could not find timezone '{TIMEZONE_DISPLAY}' in options. Using default.")
         # Look for a save or confirm button and click it if present
         try:
-            save_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Save')] | //input[@type='submit' and @value='Save']")
+            save_btn = driver.find_element(By.XPATH, "//input[@type='submit' and @value='Save Settings']")
             save_btn.click()
-            print("[INFO] Clicked Save/Confirm for timezone.")
+            print("[INFO] Clicked 'Save Settings' for timezone.")
         except Exception:
-            print("[INFO] No explicit Save button found, continuing.")
+            print("[INFO] No explicit 'Save Settings' button found, continuing.")
         # Wait for the calendar to reload
         pytime.sleep(2)
     except Exception as e:
