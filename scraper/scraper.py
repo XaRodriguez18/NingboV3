@@ -33,6 +33,13 @@ def main():
         print(f"[DEBUG] sys.platform: {sys.platform}")
         # Set Chrome binary location for Railway or Linux environments
         if sys.platform.startswith("linux"):
+            # List all files in /usr/bin containing 'chrome' or 'chromium' for debugging
+            try:
+                bin_files = os.listdir("/usr/bin")
+                chrome_like = [f for f in bin_files if "chrome" in f or "chromium" in f]
+                print(f"[DEBUG] Files in /usr/bin containing 'chrome' or 'chromium': {chrome_like}")
+            except Exception as e:
+                print(f"[DEBUG] Could not list /usr/bin: {e}")
             chrome_paths = ["/usr/bin/google-chrome", "/usr/bin/chromium-browser", "/usr/bin/chromium"]
             for chrome_path in chrome_paths:
                 if os.path.exists(chrome_path):
