@@ -167,5 +167,3 @@ def main():
     reformat_scraped_data(data, today_str)
     print("[INFO] Scraping process completed.")
     driver.quit()
-
-run_scraper()
