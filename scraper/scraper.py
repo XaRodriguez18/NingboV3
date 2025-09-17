@@ -11,8 +11,8 @@ def main():
     import json
     import pandas as pd
     from datetime import datetime
-    from config import ALLOWED_ELEMENT_TYPES, ICON_COLOR_MAP
-    from utils import reformat_scraped_data
+    from scraper.config import ALLOWED_ELEMENT_TYPES, ICON_COLOR_MAP
+    from scraper.utils import reformat_scraped_data
     from webdriver_manager.chrome import ChromeDriverManager
     import os
     import pytz
