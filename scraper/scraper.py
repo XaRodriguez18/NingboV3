@@ -11,9 +11,11 @@ def main():
     import json
     import pandas as pd
     from datetime import datetime
-    from scraper.config import ALLOWED_ELEMENT_TYPES, ICON_COLOR_MAP
-    from scraper.utils import reformat_scraped_data
+    from config import ALLOWED_ELEMENT_TYPES, ICON_COLOR_MAP
+    from utils import reformat_scraped_data
     from webdriver_manager.chrome import ChromeDriverManager
+    import os
+    import pytz
 
     print("[INFO] Initializing undetected-chromedriver...")
     try:
@@ -54,11 +56,57 @@ def main():
         print(f"[ERROR] Could not start undetected-chromedriver: {e}")
         return
 
+
     print("[INFO] Navigating to Forex Factory homepage...")
     driver.get("https://www.forexfactory.com/")
     print(f"[INFO] Current URL: {driver.current_url}")
 
-    today = datetime.now().strftime("%b %d")  # e.g., 'Sep 10'
+    # --- Set Forex Factory timezone via UI ---
+    import os
+    import time as pytime
+    TIMEZONE_DISPLAY = os.getenv("FF_TIMEZONE_DISPLAY", "Mountain Time")  # e.g., 'Mountain Time', 'GMT-7', etc.
+    try:
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        print("[INFO] Waiting for timezone link...")
+        tz_link = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href*="timezone"]'))
+        )
+        tz_link.click()
+        print("[INFO] Timezone link clicked.")
+        # Wait for the timezone selection page or modal to load
+        pytime.sleep(2)
+        # Find the timezone option by visible text and click it
+        tz_options = driver.find_elements(By.XPATH, f"//*[contains(text(), '{TIMEZONE_DISPLAY}')]")
+        found = False
+        for option in tz_options:
+            try:
+                option.click()
+                found = True
+                print(f"[INFO] Selected timezone: {option.text}")
+                break
+            except Exception:
+                continue
+        if not found:
+            print(f"[WARN] Could not find timezone '{TIMEZONE_DISPLAY}' in options. Using default.")
+        # Look for a save or confirm button and click it if present
+        try:
+            save_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Save')] | //input[@type='submit' and @value='Save']")
+            save_btn.click()
+            print("[INFO] Clicked Save/Confirm for timezone.")
+        except Exception:
+            print("[INFO] No explicit Save button found, continuing.")
+        # Wait for the calendar to reload
+        pytime.sleep(2)
+    except Exception as e:
+        print(f"[WARN] Could not set timezone automatically: {e}")
+
+    # Get local timezone from environment variable or default
+    LOCAL_TZ = os.getenv("LOCAL_TZ", "Europe/London")
+    local_tz = pytz.timezone(LOCAL_TZ)
+    now_local = datetime.now(local_tz)
+    today = now_local.strftime("%b %d")  # e.g., 'Sep 10'
 
     print("[INFO] Waiting for calendar table to load...")
     try:
@@ -114,8 +162,10 @@ def main():
     print(f"[INFO] Scraped {len(data)} rows for today from the calendar table.")
 
     print("[INFO] Reformatting and saving scraped data...")
-    # Use today's date for the CSV filename
-    today_str = datetime.now().strftime("%Y-%m-%d")
+    # Use today's date for the CSV filename (in local time)
+    today_str = now_local.strftime("%Y-%m-%d")
     reformat_scraped_data(data, today_str)
     print("[INFO] Scraping process completed.")
     driver.quit()
+
+run_scraper()
