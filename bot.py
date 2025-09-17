@@ -102,14 +102,48 @@ async def on_ready():
 async def send_daily_message():
     run_scraper()
     print("[INFO] Generating message...")
-    message = get_daily_news()
-    print(f"[INFO] Message to send: {message}")
+    # Generate embed for daily news
+    # Get today's date string for the CSV filename
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    file_string = today_str + '_news.csv'
+    news_dir = os.path.abspath("news")
+    news_path = os.path.join(news_dir, file_string)
+    if not os.path.exists(news_path):
+        embed = discord.Embed(title="Daily News", description="No news data available for today.", color=0x808080)
+    else:
+        news = pd.read_csv(news_path)
+        # Filter countries (United States)
+        country = ['USD']
+        mask = news['currency'].isin(country)
+        news = news[mask]
+        # Filter impact (Red and Orange)
+        impact = ['red', 'orange']
+        mask = news['impact'].isin(impact)
+        news = news[mask]
+        # Get today's date for display
+        today_display = datetime.now().strftime("%b %d")
+        mask = news['date'] == today_display
+        current_day_rows = news[mask]
+        # Build embed description
+        if current_day_rows.empty:
+            desc = "No relevant news today"
+            color = 0x808080
+        else:
+            desc = ""
+            color = 0xFFA500  # Default to orange
+            for _, row in current_day_rows.iterrows():
+                # Set color to red if any red impact
+                if row['impact'] == 'red':
+                    color = 0xFF0000
+                desc += f"`{row['time']}` | **{row['currency']}** | {row['impact'].capitalize()} | {row['event']}\n"
+        embed = discord.Embed(title=f"{today_display} News", description=desc, color=color)
+        embed.set_footer(text="Source: Forex Factory")
     print(f"[INFO] Attempting to get channel with ID: {DISCORD_CHANNEL_ID}")
     channel = bot.get_channel(DISCORD_CHANNEL_ID)
     if channel:
-        print("[INFO] Channel found, sending message...")
-        await channel.send(message)
-        print('[INFO] Message sent successfully')
+        print("[INFO] Channel found, sending embed...")
+        await channel.send(embed=embed)
+        print('[INFO] Embed sent successfully')
     else:
         print("[ERROR] Channel not found! Check channel ID and bot permissions.")
 
