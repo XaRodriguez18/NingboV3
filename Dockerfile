@@ -21,5 +21,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the code
 COPY . .
 
+# Ensure Python output is unbuffered for logging
+ENV PYTHONUNBUFFERED=1
+
 # Default command (adjust as needed)
-CMD ["python", "bot.py"]
+CMD ["python", "-u", "bot.py"]
