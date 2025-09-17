@@ -14,11 +14,23 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 load_dotenv()
+
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-DISCORD_CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+DISCORD_CHANNEL_ID = os.getenv("CHANNEL_ID")
 LOCAL_TZ = os.getenv("LOCAL_TZ")
-SEND_HOUR = int(os.getenv("SEND_HOUR"))
-SEND_MIN = int(os.getenv("SEND_MIN"))
+SEND_HOUR = os.getenv("SEND_HOUR")
+SEND_MIN = os.getenv("SEND_MIN")
+
+print(f"[LOG] DISCORD_TOKEN: {repr(DISCORD_TOKEN)}")
+print(f"[LOG] CHANNEL_ID: {repr(DISCORD_CHANNEL_ID)}")
+print(f"[LOG] LOCAL_TZ: {repr(LOCAL_TZ)}")
+print(f"[LOG] SEND_HOUR: {repr(SEND_HOUR)}")
+print(f"[LOG] SEND_MIN: {repr(SEND_MIN)}")
+
+# Convert types after logging
+DISCORD_CHANNEL_ID = int(DISCORD_CHANNEL_ID) if DISCORD_CHANNEL_ID is not None else None
+SEND_HOUR = int(SEND_HOUR) if SEND_HOUR is not None else None
+SEND_MIN = int(SEND_MIN) if SEND_MIN is not None else None
 
 def get_daily_news():
     # Get today's date string for the CSV filename
