@@ -130,7 +130,7 @@ async def send_daily_message():
             color = 0x808080
         else:
             desc = ""
-            color = 0xFFA500  # Default to orange
+            color = 0x00FF00  # Default to orange
             for _, row in current_day_rows.iterrows():
                 # Set color to red if any red impact
                 if row['impact'] == 'red':
@@ -139,8 +139,6 @@ async def send_daily_message():
                     color = 0xFFA500
                 elif row['impact'] == 'yellow' and color not in (0xFF0000, 0xFFA500):
                     color = 0xFFFF00
-                else:
-                    color = 0x00FF00  # Green for low impact
                 desc += f"`{row['time']}` **{row['currency']}** {row['impact'].capitalize()} - {row['event']}\n"
         embed = discord.Embed(title=f"{today_display} News", description=desc, color=color)
         embed.set_footer(text="Source: Forex Factory\nhttps://www.forexfactory.com/")
