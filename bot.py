@@ -30,49 +30,6 @@ DISCORD_CHANNEL_ID = int(DISCORD_CHANNEL_ID) if DISCORD_CHANNEL_ID is not None e
 SEND_HOUR = int(SEND_HOUR) if SEND_HOUR is not None else None
 SEND_MIN = int(SEND_MIN) if SEND_MIN is not None else None
 
-# Consider deleting BEGIN
-def get_daily_news():
-    # Get today's date string for the CSV filename
-    today_str = datetime.now().strftime("%Y-%m-%d")
-    file_string = today_str + '_news.csv'
-    news_dir = os.path.abspath("news")
-    news_path = os.path.join(news_dir, file_string)
-    print(f"[INFO] Absolute news directory: {news_dir}")
-    print(f"[INFO] Loading news from: {news_path}")
-    if not os.path.exists(news_path):
-        print("[WARN] News file not found for today.")
-        return "No news data available for today."
-    print("[INFO] News file found, reading CSV...")
-    news = pd.read_csv(news_path)
-
-    # Filter countries (United States)
-    country = ['USD']
-    mask = news['currency'].isin(country)
-    news = news[mask]
-    # Filter impact (Red and Orange)
-    impact = ['red', 'orange']
-    mask = news['impact'].isin(impact)
-    news = news[mask]
-
-    # Get today's date for display
-    today_display = datetime.now().strftime("%b %d")
-    mask = news['date'] == today_display
-    current_day_rows = news[mask]
-
-    # Generate news message to be displayed
-    message_list = ['time', 'currency', 'impact', 'event']
-    news_message = f"{today_display} News:\n"
-    if current_day_rows.empty:
-        news_message += "No relevant news today"
-    else:
-        for index, row in current_day_rows.iterrows():
-            for name in message_list:
-                news_message += str(row[name]) + "\t"
-            news_message += "\n"
-    print(f"[INFO] Current message:\n{news_message}")
-    return news_message
-# END
-
 def convert_to_utc(hour: int, minute: int, local_tz_str: str = LOCAL_TZ) -> tuple:
     print(f"[INFO] Converting local time {hour}:{minute} in {local_tz_str} to UTC...")
     local_tz = pytz.timezone(local_tz_str)
@@ -86,7 +43,6 @@ utc_hour, utc_minute = convert_to_utc(SEND_HOUR, SEND_MIN, LOCAL_TZ)
 
 # Set the time you want the message to be sent (24-hour format)
 SEND_TIME = dtime(hour=utc_hour, minute=utc_minute)
-# SEND_TIME = dtime(hour=12, minute=41)
 
 @bot.event
 async def on_ready():

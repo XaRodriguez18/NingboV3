@@ -32,20 +32,17 @@ def main():
         options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
         import sys
         import os
-        print(f"[DEBUG] sys.platform: {sys.platform}")
         # Set Chrome binary location for Railway or Linux environments
         if sys.platform.startswith("linux"):
             # List all files in /usr/bin containing 'chrome' or 'chromium' for debugging
             try:
                 bin_files = os.listdir("/usr/bin")
-                print(f"[DEBUG] All files in /usr/bin: {bin_files}")
             except Exception as e:
                 print(f"[DEBUG] Could not list /usr/bin: {e}")
             chrome_paths = ["/usr/bin/google-chrome", "/usr/bin/chromium-browser", "/usr/bin/chromium"]
             for chrome_path in chrome_paths:
                 if os.path.exists(chrome_path):
                     options.binary_location = chrome_path
-                    print(f"[INFO] Using Chrome binary at: {chrome_path}")
                     break
             else:
                 print("[ERROR] Chrome/Chromium not found in common locations. Please install Chrome or set the correct path.")
@@ -59,7 +56,6 @@ def main():
 
     print("[INFO] Navigating to Forex Factory homepage...")
     driver.get("https://www.forexfactory.com/")
-    print(f"[INFO] Current URL: {driver.current_url}")
 
     # --- Set Forex Factory timezone via UI ---
     import os
