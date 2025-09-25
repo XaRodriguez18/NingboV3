@@ -21,8 +21,6 @@ LOCAL_TZ = os.getenv("LOCAL_TZ")
 SEND_HOUR = os.getenv("SEND_HOUR")
 SEND_MIN = os.getenv("SEND_MIN")
 
-print(f"[LOG] DISCORD_TOKEN: {repr(DISCORD_TOKEN)}")
-print(f"[LOG] CHANNEL_ID: {repr(DISCORD_CHANNEL_ID)}")
 print(f"[LOG] LOCAL_TZ: {repr(LOCAL_TZ)}")
 print(f"[LOG] SEND_HOUR: {repr(SEND_HOUR)}")
 print(f"[LOG] SEND_MIN: {repr(SEND_MIN)}")
@@ -32,6 +30,7 @@ DISCORD_CHANNEL_ID = int(DISCORD_CHANNEL_ID) if DISCORD_CHANNEL_ID is not None e
 SEND_HOUR = int(SEND_HOUR) if SEND_HOUR is not None else None
 SEND_MIN = int(SEND_MIN) if SEND_MIN is not None else None
 
+# Consider deleting BEGIN
 def get_daily_news():
     # Get today's date string for the CSV filename
     today_str = datetime.now().strftime("%Y-%m-%d")
@@ -72,6 +71,7 @@ def get_daily_news():
             news_message += "\n"
     print(f"[INFO] Current message:\n{news_message}")
     return news_message
+# END
 
 def convert_to_utc(hour: int, minute: int, local_tz_str: str = LOCAL_TZ) -> tuple:
     print(f"[INFO] Converting local time {hour}:{minute} in {local_tz_str} to UTC...")
@@ -135,12 +135,10 @@ async def send_daily_message():
                 # Set color to red if any red impact
                 if row['impact'] == 'red':
                     color = 0xFF0000
+                    break
                 elif row['impact'] == 'orange' and color != 0xFF0000:
                     color = 0xFFA500
-                elif row['impact'] == 'yellow' and color not in (0xFF0000, 0xFFA500):
-                    color = 0xFFFF00
-                else:
-                    color = 0x00FF00  # Green for low impact
+                
                 desc += f"`{row['time']}` **{row['currency']}** {row['impact'].capitalize()} - {row['event']}\n"
         embed = discord.Embed(title=f"{today_display} News", description=desc, color=color)
         embed.set_footer(text="Source: Forex Factory\nhttps://www.forexfactory.com/")
