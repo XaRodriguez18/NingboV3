@@ -56,7 +56,8 @@ async def on_ready():
 
 
 async def send_daily_message():
-    run_scraper()
+    import asyncio
+    await asyncio.to_thread(run_scraper)
     print("[INFO] Generating message...")
     # Generate embed for daily news
     # Get today's date string for the CSV filename
@@ -68,18 +69,14 @@ async def send_daily_message():
         embed = discord.Embed(title="Daily News", description="No news data available for today.", color=0x808080)
     else:
         news = pd.read_csv(news_path)
-        # Filter countries (United States)
-        country = ['USD']
-        mask = news['currency'].isin(country)
-        news = news[mask]
-        # Filter impact (Red and Orange)
-        impact = ['red', 'orange']
-        mask = news['impact'].isin(impact)
-        news = news[mask]
-        # Get today's date for display
+        # Use config constants for allowed currency and impact
+        from scraper.config import ALLOWED_CURRENCY_CODES, ALLOWED_IMPACT_COLORS
+        # Only USD, red, orange
+        mask = (news['currency'] == 'USD') & (news['impact'].isin(['red', 'orange']))
+        filtered_news = news[mask]
         today_display = datetime.now().strftime("%b %d")
-        mask = news['date'] == today_display
-        current_day_rows = news[mask]
+        mask = filtered_news['date'] == today_display
+        current_day_rows = filtered_news[mask]
         # Build embed description
         if current_day_rows.empty:
             desc = "No relevant news today"
@@ -91,10 +88,6 @@ async def send_daily_message():
                 # Set color to red if any red impact
                 if row['impact'] == 'red':
                     color = 0xFF0000
-                    break
-                elif row['impact'] == 'orange' and color != 0xFF0000:
-                    color = 0xFFA500
-                
                 desc += f"`{row['time']}` **{row['currency']}** {row['impact'].capitalize()} - {row['event']}\n"
         embed = discord.Embed(title=f"{today_display} News", description=desc, color=color)
         embed.set_footer(text="Source: Forex Factory\nhttps://www.forexfactory.com/")
@@ -106,5 +99,12 @@ async def send_daily_message():
         print('[INFO] Embed sent successfully')
     else:
         print("[ERROR] Channel not found! Check channel ID and bot permissions.")
+
+    # Cleanup: delete today's CSV after sending message
+    try:
+        from scraper.cleanup import delete_today_csv
+        delete_today_csv()
+    except Exception as e:
+        print(f"[CLEANUP] Error during CSV deletion: {e}")
 
 bot.run(DISCORD_TOKEN)
