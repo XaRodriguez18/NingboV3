@@ -1,15 +1,17 @@
 # Use an official Python runtime as a parent image
 FROM python:3.12-slim
 
-# Install wget and Chrome version 140
+# Install wget, gnupg, and Chrome stable
 RUN apt-get update \
-    && apt-get install -y wget \
-    && wget -O /tmp/chrome.deb https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_140.0.7339.210-1_amd64.deb \
-    && apt-get install -y /tmp/chrome.deb \
-    && rm /tmp/chrome.deb
+    && apt-get install -y wget gnupg \
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable
 
-# Install ChromeDriver version 140
-RUN CHROMEDRIVER_VERSION=140.0.7339.210 \
+# Install ChromeDriver (latest matching Chrome stable)
+RUN CHROME_VERSION=$(google-chrome --version | awk '{print $3}') \
+    && CHROMEDRIVER_VERSION=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE) \
     && wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip \
     && unzip /tmp/chromedriver.zip -d /usr/local/bin/ \
     && rm /tmp/chromedriver.zip
