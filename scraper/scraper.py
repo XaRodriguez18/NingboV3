@@ -125,33 +125,50 @@ def main():
 
     # Scrape table
     print("[SCRAPER.3 INFO] Collecting today's news from table...")
+    from scraper.config import ALLOWED_CURRENCY_CODES, ALLOWED_IMPACT_COLORS
+    stored_date = None
+    last_time_val = None
     for row in table.find_elements(By.TAG_NAME, "tr"):
-        # Check if this row is for today
         date_cells = row.find_elements(By.CLASS_NAME, "calendar__date")
-        is_today = False
-        for date_cell in date_cells:
-            if today in date_cell.text:
-                is_today = True
-                break
-        if not is_today and date_cells:
-            continue
+        if date_cells:
+            for date_cell in date_cells:
+                if date_cell.text:
+                    stored_date = date_cell.text
+                    print(f"[SCRAPER.3 DEBUG] Found date: {stored_date}")
+                    break
         row_data = []
+        currency = None
+        impact_color = None
+        time_val = None
+        event_val = None
         for element in row.find_elements(By.TAG_NAME, "td"):
             class_name = element.get_attribute('class')
             if class_name in ALLOWED_ELEMENT_TYPES:
-                if element.text:
-                    row_data.append(element.text)
+                if "calendar__time" in class_name:
+                    if element.text:
+                        time_val = element.text
+                        last_time_val = time_val
+                    else:
+                        time_val = last_time_val
+                elif "calendar__currency" in class_name and element.text:
+                    currency = element.text
                 elif "calendar__impact" in class_name:
                     impact_elements = element.find_elements(By.TAG_NAME, "span")
                     for impact in impact_elements:
                         impact_class = impact.get_attribute("class")
-                        color = ICON_COLOR_MAP[impact_class]
-                    if color:
-                        row_data.append(color)
-                    else:
-                        row_data.append("impact")
-        if len(row_data):
+                        color = ICON_COLOR_MAP.get(impact_class)
+                        if color:
+                            impact_color = color
+                elif "calendar__event" in class_name and element.text:
+                    event_val = element.text
+        # Only append if currency and impact_color are allowed
+        if currency in ALLOWED_CURRENCY_CODES and impact_color in ALLOWED_IMPACT_COLORS:
+            # Use stored_date for all rows
+            row_data = [stored_date, time_val, currency, impact_color, event_val]
+            print(f"[SCRAPER.3 DEBUG] Row accepted: {row_data}")
             data.append(row_data)
+        else:
+            print(f"[SCRAPER.3 DEBUG] Row rejected: currency={currency}, impact={impact_color}")
     print(f"[SCRAPER.3 INFO] Scraped {len(data)} rows for today from the calendar table.")
 
     # STEP IV - REFORMAT AND SAVE DATA

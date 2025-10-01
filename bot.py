@@ -71,12 +71,13 @@ async def send_daily_message():
         embed = discord.Embed(title="Daily News", description="No news data available for today.", color=0x808080)
     else:
         news = pd.read_csv(news_path)
-        # Only USD, red, orange
-        mask = (news['currency'] == 'USD') & (news['impact'].isin(['red', 'orange']))
-        filtered_news = news[mask]
-        today_display = datetime.now().strftime("%b %d")
-        mask = filtered_news['date'] == today_display
-        current_day_rows = filtered_news[mask]
+        print(f"[BOT.DEBUG] Loaded news DataFrame:\n{news}")
+        today_display = datetime.now().strftime("%b %-d") if os.name != 'nt' else datetime.now().strftime("%b %#d")
+        print(f"[BOT.DEBUG] today_display: {today_display}")
+        mask = news['date'] == today_display
+        print(f"[BOT.DEBUG] Mask for today's news: {mask}")
+        current_day_rows = news[mask]
+        print(f"[BOT.DEBUG] Filtered current_day_rows:\n{current_day_rows}")
         # Build embed description
         if current_day_rows.empty:
             desc = "No relevant news today"
@@ -85,7 +86,6 @@ async def send_daily_message():
             desc = ""
             color = 0xFFA500  # Default to orange
             for _, row in current_day_rows.iterrows():
-                # Set color to red if any red impact
                 if row['impact'] == 'red':
                     color = 0xFF0000
                 desc += f"`{row['time']}` **{row['currency']}** {row['impact'].capitalize()} - {row['event']}\n"
