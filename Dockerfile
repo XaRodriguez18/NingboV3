@@ -1,9 +1,10 @@
 # Use an official Python runtime as a parent image
 FROM python:3.12-slim
 
-# Install Chrome version 140
-RUN wget -O /tmp/chrome.deb https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_140.0.7339.210-1_amd64.deb \
-    && apt-get update \
+# Install wget and Chrome version 140
+RUN apt-get update \
+    && apt-get install -y wget \
+    && wget -O /tmp/chrome.deb https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_140.0.7339.210-1_amd64.deb \
     && apt-get install -y /tmp/chrome.deb \
     && rm /tmp/chrome.deb
 
