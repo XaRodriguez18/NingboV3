@@ -1,4 +1,4 @@
-def run_scraper():
+def runScraper():
     print("Running Daily scraper")
     try:
         main()
