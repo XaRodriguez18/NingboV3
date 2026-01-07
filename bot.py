@@ -1,12 +1,12 @@
-import pandas as pd
-from datetime import datetime
-import discord
-from apscheduler.triggers.cron import CronTrigger
-from discord.ext import commands
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from datetime import time as dtime
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+import discord
+from discord.ext import commands
+from datetime import datetime
+from datetime import time as dtime
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import pandas as pd
 import pytz
 from scraper.scraper import run_scraper
 
