@@ -176,4 +176,11 @@ async def sendDailyMessage():
     else:
         print("[ERROR] Channel not found! Check channel ID and bot permissions.")
 
+    # Cleanup: delete today's CSV after sending message
+    try:
+        from scraper.cleanup import delete_today_csv
+        delete_today_csv()
+    except Exception as e:
+        print(f"[CLEANUP] Error during CSV deletion: {e}")
+
 bot.run(DISCORD_TOKEN)
