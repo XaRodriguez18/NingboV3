@@ -24,60 +24,45 @@ LOCAL_TZ =           os.getenv("LOCAL_TZ")
 SEND_HOUR =          os.getenv("SEND_HOUR")
 SEND_MIN =           os.getenv("SEND_MIN")
 
-# Log environment variable values before type conversion
-# print(f"[LOG] DISCORD_TOKEN: {repr(DISCORD_TOKEN)}")
-# print(f"[LOG] CHANNEL_ID: {repr(DISCORD_CHANNEL_ID)}")
-# print(f"[LOG] LOCAL_TZ: {repr(LOCAL_TZ)}")
-# print(f"[LOG] SEND_HOUR: {repr(SEND_HOUR)}")
-# print(f"[LOG] SEND_MIN: {repr(SEND_MIN)}")
-
 # Convert environment variable types to integers after logging
 DISCORD_CHANNEL_ID = int(DISCORD_CHANNEL_ID) if DISCORD_CHANNEL_ID is not None else None
 SEND_HOUR =          int(SEND_HOUR) if SEND_HOUR is not None else None
 SEND_MIN =           int(SEND_MIN) if SEND_MIN is not None else None
 
-# def get_daily_news():
-#     # Get today's date string for the CSV filename
-#     today_str = datetime.now().strftime("%Y-%m-%d")
-#     file_string = today_str + '_news.csv'
-#     news_dir = os.path.abspath("news")
-#     news_path = os.path.join(news_dir, file_string)
-#     print(f"[INFO] Absolute news directory: {news_dir}")
-#     print(f"[INFO] Loading news from: {news_path}")
-#     if not os.path.exists(news_path):
-#         print("[WARN] News file not found for today.")
-#         return "No news data available for today."
-#     print("[INFO] News file found, reading CSV...")
-#     news = pd.read_csv(news_path)
+# Helper function to create all needed current time formats
+def getTimeContext(SEND_HOUR, SEND_MIN, LOCAL_TZ: str):
+    """
+    Get current time context in various formats.
 
-#     # Filter countries (United States)
-#     country = ['USD']
-#     mask = news['currency'].isin(country)
-#     news = news[mask]
-#     # Filter impact (Red and Orange)
-#     impact = ['red', 'orange']
-#     mask = news['impact'].isin(impact)
-#     news = news[mask]
+    Captures the current moment and returns a dictionary of formatted strings 
+    and objects to ensure consistency across the entire script.
 
-#     # Get today's date for display
-#     today_display = datetime.now().strftime("%b %d")
-#     mask = news['date'] == today_display
-#     current_day_rows = news[mask]
+    Args:
+        LOCAL_TZ (str): Local timezone string.
 
-#     # Generate news message to be displayed
-#     message_list = ['time', 'currency', 'impact', 'event']
-#     news_message = f"{today_display} News:\n"
-#     if current_day_rows.empty:
-#         news_message += "No relevant news today"
-#     else:
-#         for index, row in current_day_rows.iterrows():
-#             for name in message_list:
-#                 news_message += str(row[name]) + "\t"
-#             news_message += "\n"
-#     print(f"[INFO] Current message:\n{news_message}")
-#     return news_message
+    Returns:
+        dictionary {
+            utcSendTime (dtime): Time object in UTC for scheduling.
+            dateFileStr (str): Date string for file name to locate (e.g., '2024-09-10').
+            displayDateStr (str): Date string for data filter and display in embed (e.g., 'Sep 10').
+        }
+    """
+    # Create a UTC time zone object based on send time environment variables
+    utcSendTime = convertToUtc(SEND_HOUR, SEND_MIN, LOCAL_TZ)
 
+    # Build date string for today's date file
+    dateFileStr = datetime.now().strftime("%Y-%m-%d")
 
+    # Build display date string for data filtering and embed 
+    displayDateStr = datetime.now().strftime("%b %d")
+
+    return {
+        "utcSendTime": utcSendTime,
+        "dateFileStr": dateFileStr,
+        "displayDateStr": displayDateStr
+    }
+
+# Helper function to convert local time to UTC
 def convertToUtc(hour: int, minute: int, localTimeZoneString: str = LOCAL_TZ) -> tuple:
     """
     Convert local time to UTC time.
@@ -88,23 +73,89 @@ def convertToUtc(hour: int, minute: int, localTimeZoneString: str = LOCAL_TZ) ->
         localTimeZoneString (str): Local timezone string.
 
     Returns:
-        tuple (
-            utcHour (int): Hour in UTC time (24-hour format).
-            utcMinute (int): Minute in UTC time.
-        )
+        utcDateTime (datetime): Corresponding UTC datetime object.
 
     """
-    # print(f"[INFO] Converting local time {hour}:{minute} in {localTimeZoneString} to UTC...")
+    # TODO: Anaylze code performance and redundancy
     localTimeZone = pytz.timezone(localTimeZoneString)
     now = datetime.now(localTimeZone)
     localDateTime = localTimeZone.localize(datetime(now.year, now.month, now.day, hour, minute))
     utcDateTime = localDateTime.astimezone(pytz.utc)
-    # print(f"[INFO] UTC time is {utcDateTime.hour}:{utcDateTime.minute}")
-    return utcDateTime.hour, utcDateTime.minute
+    return utcDateTime
 
-# Convert the send hour and minute to UTC time object for scheduling
-utcHour, utcMinute = convertToUtc(SEND_HOUR, SEND_MIN, LOCAL_TZ)
+# Function to process news file and generate DataFrame
+def processNewsFile():
+    """
+    Process the news CSV file for today's date.
 
+    Reads the CSV file generated by the scraper, filters relevant news based on 
+    currency and impact.
+
+    Returns:
+        pd.DataFrame: Filtered news data for today.
+    """
+    # Build file path for today's news CSV
+    fileStr = timeContext['dateFileStr'] + '_news.csv'
+    news_path = os.path.join(os.path.abspath("news"), fileStr)
+
+    # Check if file exists
+    if not os.path.exists(news_path):
+        print(f"[WARN] File not found: {news_path}")
+        return pd.DataFrame() # Return empty DF if file is missing
+
+    # Read and filter news data
+    news = pd.read_csv(news_path)
+
+    # Filtering logic by currency and impact
+    news = news[news['currency'] == 'USD']
+    news = news[news['impact'].isin(['red', 'orange'])]
+
+    # Use the date from our context instead of calling datetime.now() again
+    rows_to_display = news[news['date'] == timeContext['displayDateStr']]
+
+
+# # TODO: Split into smaller functions and modularize
+# async def sendDailyMessage():
+    
+    
+
+#         # Build embed description
+#         if rowsToDisplay.empty:
+#             desc = "No relevant news today"
+#             color = 0x808080 # Grey for no news
+#         else:
+#             desc = ""
+#             for _, row in rowsToDisplay.iterrows():
+#                 # Set color to red if any red impact
+#                 if row['impact'] == 'red':
+#                     color = 0xFF0000
+#                 elif row['impact'] == 'orange' and color != 0xFF0000:
+#                     color = 0xFFA500
+#                 elif row['impact'] == 'yellow' and color not in (0xFF0000, 0xFFA500):
+#                     color = 0xFFFF00
+#                 desc += f"`{row['time']}` **{row['currency']}** {row['impact'].capitalize()} - {row['event']}\n"
+#         embed = discord.Embed(title=f"{todayDisplay} News", description=desc, color=color)
+#         embed.set_footer(text="Source: Forex Factory\nhttps://www.forexfactory.com/")
+#     print(f"[INFO] Attempting to get channel with ID: {DISCORD_CHANNEL_ID}")
+#     channel = bot.get_channel(DISCORD_CHANNEL_ID)
+#     if channel:
+#         print("[INFO] Channel found, sending embed...")
+#         await channel.send(embed=embed)
+#         print('[INFO] Embed sent successfully')
+#     else:
+#         print("[ERROR] Channel not found! Check channel ID and bot permissions.")
+
+#     # Cleanup: delete today's CSV after sending message
+#     try:
+#         from scraper.cleanup import delete_today_csv
+#         delete_today_csv()
+#     except Exception as e:
+#         print(f"[CLEANUP] Error during CSV deletion: {e}")
+
+# Get time context
+timeContext = getTimeContext(SEND_HOUR, SEND_MIN, LOCAL_TZ)
+
+# Schedule daily scrape and message sending job
 @bot.event
 async def on_ready():
     """
@@ -112,75 +163,22 @@ async def on_ready():
 
     Sets up the scheduler to send daily messages at the specified UTC time.
     """
-    # print(f'[INFO] Logged in as {bot.user}')
+    sendTime = timeContext['utcSendTime']
     scheduler = AsyncIOScheduler()
-    # print('[INFO] Adding daily message job to scheduler...')
-    scheduler.add_job(sendDailyMessage, 'cron', hour=utcHour, minute=utcMinute)
+    scheduler.add_job(sendDailyMessage, 'cron', hour=sendTime.hour, minute=sendTime.minute)
     scheduler.start()
-    # print(f"[INFO] Current time: {datetime.now()}")
-    # print(f"[INFO] Scheduler started for {utcHour}:{utcMinute} UTC")
 
-# TODO: Split into smaller functions and modularize
-async def sendDailyMessage():
-    runScraper()
-    # print("[INFO] Generating message...")
-    todayStr = datetime.now().strftime("%Y-%m-%d")
-    fileStr = todayStr + '_news.csv'
-    newsDir = os.path.abspath("news")
-    newsPath = os.path.join(newsDir, fileStr)
+# Scrape news data
+runScraper()
 
-    # TODO: Add error handling for file read
-    if not os.path.exists(newsPath):
-        embed = discord.Embed(title="Daily News", description="No news data available for today.", color=0x808080)
-    else:
-        news = pd.read_csv(newsPath)
+# Process news file
+processNewsFile()
 
-        # Filter countries (United States)
-        country = ['USD']
-        mask = news['currency'].isin(country)
-        news = news[mask]
+# Build embed
+def buildEmbed():
 
-        # Filter impact (Red and Orange)
-        impact = ['red', 'orange']
-        mask = news['impact'].isin(impact)
-        news = news[mask]
-
-        # Filter date (Today) & Get today's date for embed display
-        todayDisplay = datetime.now().strftime("%b %d")
-        mask = news['date'] == todayDisplay
-        rowsToDisplay = news[mask]
-
-        # Build embed description
-        if rowsToDisplay.empty:
-            desc = "No relevant news today"
-            color = 0x808080 # Grey for no news
-        else:
-            desc = ""
-            for _, row in rowsToDisplay.iterrows():
-                # Set color to red if any red impact
-                if row['impact'] == 'red':
-                    color = 0xFF0000
-                elif row['impact'] == 'orange' and color != 0xFF0000:
-                    color = 0xFFA500
-                elif row['impact'] == 'yellow' and color not in (0xFF0000, 0xFFA500):
-                    color = 0xFFFF00
-                desc += f"`{row['time']}` **{row['currency']}** {row['impact'].capitalize()} - {row['event']}\n"
-        embed = discord.Embed(title=f"{todayDisplay} News", description=desc, color=color)
-        embed.set_footer(text="Source: Forex Factory\nhttps://www.forexfactory.com/")
-    print(f"[INFO] Attempting to get channel with ID: {DISCORD_CHANNEL_ID}")
-    channel = bot.get_channel(DISCORD_CHANNEL_ID)
-    if channel:
-        print("[INFO] Channel found, sending embed...")
-        await channel.send(embed=embed)
-        print('[INFO] Embed sent successfully')
-    else:
-        print("[ERROR] Channel not found! Check channel ID and bot permissions.")
-
-    # Cleanup: delete today's CSV after sending message
-    try:
-        from scraper.cleanup import delete_today_csv
-        delete_today_csv()
-    except Exception as e:
-        print(f"[CLEANUP] Error during CSV deletion: {e}")
-
+# Send embed to channel
+async def sendEmbedToChannel():
 bot.run(DISCORD_TOKEN)
+
+# Clean up old files
